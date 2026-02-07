@@ -5,6 +5,7 @@
 
 @theme inline {
   --font-poppins: 'Poppins', sans-serif;
+  --font-lobster: 'Lobster', cursive;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -120,7 +121,20 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scroll-behavior: smooth;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
   body {
     @apply bg-background text-foreground;
+  }
+  section {
+    display: block;
+    margin: 0;
+    padding: 0;
   }
 }

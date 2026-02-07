@@ -1,18 +1,69 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { HomePage, AboutPage, ProductsPage, ProductPage, ContactPage, LoginPage, RegisterPage } from './pages'
+import { Header } from './components/Header'
+import { HEADER_HEIGHT } from './constants/header'
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/products/:id" element={<ProductPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-      </Routes>
+      <Header />
+      <div className="relative" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+        <section 
+          id="home" 
+          style={{ 
+            height: '100dvh',
+            margin: 0,
+            padding: 0,
+            display: 'block',
+          }}
+        >
+          <HomePage />
+        </section>
+        <section 
+          id="about" 
+          style={{ 
+            height: '100dvh',
+            margin: 0,
+            padding: 0,
+            paddingTop: `${HEADER_HEIGHT}px`,
+            boxSizing: 'border-box',
+            display: 'block',
+          }}
+        >
+          <AboutPage />
+        </section>
+        <section 
+          id="products" 
+          style={{ 
+            height: '100dvh',
+            margin: 0,
+            padding: 0,
+            paddingTop: `${HEADER_HEIGHT}px`,
+            boxSizing: 'border-box',
+            display: 'block',
+          }}
+        >
+          <ProductsPage />
+        </section>
+        <section 
+          id="contact" 
+          style={{ 
+            height: '100dvh',
+            margin: 0,
+            padding: 0,
+            paddingTop: `${HEADER_HEIGHT}px`,
+            boxSizing: 'border-box',
+            display: 'block',
+          }}
+        >
+          <ContactPage />
+        </section>
+        <Routes>
+          <Route path="/products/:id" element={<ProductPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   )
 }
