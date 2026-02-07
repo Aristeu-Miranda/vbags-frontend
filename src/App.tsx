@@ -22,12 +22,13 @@ function App() {
         <section 
           id="about" 
           style={{ 
-            height: '100dvh',
+            minHeight: '100dvh',
             margin: 0,
             padding: 0,
             paddingTop: `${HEADER_HEIGHT}px`,
             boxSizing: 'border-box',
             display: 'block',
+            backgroundColor: '#f5f5f5',
           }}
         >
           <AboutPage />

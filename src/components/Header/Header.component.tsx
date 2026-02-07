@@ -115,7 +115,7 @@ export const Header = () => {
           <nav className="w-1/2 justify-center items-center flex">
             <ul 
               ref={navRef}
-              className="flex items-center font-poppins text-sm justify-between w-1/2 relative"
+              className=" items-center font-poppins text-sm justify-between w-full lg:w-1/2 relative hidden sm:flex"
             >
               {NAVIGATION_ITEMS.map((item) => (
                 <li className="cursor-pointer mb-1" key={item.path}>
@@ -140,7 +140,7 @@ export const Header = () => {
               />
             </ul>
           </nav>
-          <Button variant="default" className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer">Login</Button>
+          <Button variant="default" className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:block">Login</Button>
         </div>
       </Container>
     </header>
