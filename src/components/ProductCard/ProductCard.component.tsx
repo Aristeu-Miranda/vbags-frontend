@@ -2,7 +2,7 @@ import type { ProductCardProps } from './ProductCard.types'
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 
-export const ProductCard = ({ id, title, description, image, price, onAction, status }: ProductCardProps) => {
+export const ProductCard = ({ title, description, image, price, onAction, status }: ProductCardProps) => {
 
   return (
     <div className="w-full max-w-96 border border-gray-200 rounded-lg hover:shadow-xl transition-all duration-300 flex flex-col gap-5 overflow-hidden">

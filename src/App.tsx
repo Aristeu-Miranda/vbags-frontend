@@ -49,7 +49,7 @@ function App() {
         <section 
           id="contact" 
           style={{ 
-            height: '100dvh',
+            minHeight: '100dvh',
             margin: 0,
             padding: 0,
             paddingTop: `${HEADER_HEIGHT}px`,
