@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Container } from '../Container'
 import logo from '@/assets/logo.png'
 import { Button } from "@/components/ui/button"
@@ -48,12 +48,19 @@ const getActiveSection = (): string | null => {
 }
 
 export const Header = () => {
+  const { pathname } = useLocation()
+  const showHeaderOptions = pathname === '/'
   const navRef = useRef<HTMLUListElement>(null)
   const indicatorRef = useRef<HTMLDivElement>(null)
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
   const [activeSection, setActiveSection] = useState<string>('home')
 
   useEffect(() => {
+    if (!showHeaderOptions) {
+      setIndicatorStyle({ left: 0, width: 0 })
+      return
+    }
+
     const updateIndicator = () => {
       if (!navRef.current || !indicatorRef.current) return
 
@@ -95,7 +102,7 @@ export const Header = () => {
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('resize', updateIndicator)
     }
-  }, [])
+  }, [showHeaderOptions])
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 mx-auto shadow-md bg-white/90 backdrop-blur-sm">
@@ -105,42 +112,50 @@ export const Header = () => {
             to="/" 
             className="flex items-center gap-2"
             onClick={(e) => {
-              e.preventDefault()
-              scrollToSection('home')
+              if (pathname === '/') {
+                e.preventDefault()
+                scrollToSection('home')
+              }
             }}
           >
             <img src={logo} alt="Logo" className="w-10 h-10" />
             <h1 className="text-xl font-extralight font-poppins">V-Bags</h1>
           </Link>
-          <nav className="w-1/2 justify-center items-center flex">
-            <ul 
-              ref={navRef}
-              className=" items-center font-poppins text-sm justify-between w-full lg:w-1/2 relative hidden sm:flex"
-            >
-              {NAVIGATION_ITEMS.map((item) => (
-                <li className="cursor-pointer mb-1" key={item.path}>
-                  <Link 
-                    to={item.path}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      scrollToSection(item.sectionId)
+          {showHeaderOptions ? (
+            <>
+              <nav className="w-1/2 justify-center items-center flex">
+                <ul
+                  ref={navRef}
+                  className=" items-center font-poppins text-sm justify-between w-full lg:w-1/2 relative hidden sm:flex"
+                >
+                  {NAVIGATION_ITEMS.map((item) => (
+                    <li className="cursor-pointer mb-1" key={item.path}>
+                      <Link
+                        to={item.path}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          scrollToSection(item.sectionId)
+                        }}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                  <div
+                    ref={indicatorRef}
+                    className="absolute bottom-0 h-0.5 bg-pink-light transition-all duration-300 ease-in-out"
+                    style={{
+                      left: `${indicatorStyle.left}px`,
+                      width: `${indicatorStyle.width}px`,
                     }}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-              <div
-                ref={indicatorRef}
-                className="absolute bottom-0 h-0.5 bg-pink-light transition-all duration-300 ease-in-out"
-                style={{
-                  left: `${indicatorStyle.left}px`,
-                  width: `${indicatorStyle.width}px`,
-                }}
-              />
-            </ul>
-          </nav>
-          <Button variant="default" className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:block">Login</Button>
+                  />
+                </ul>
+              </nav>
+              <Button variant="default" className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:block">Login</Button>
+            </>
+          ) : (
+            <div />
+          )}
         </div>
       </Container>
     </header>

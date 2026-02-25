@@ -15,6 +15,7 @@ const scrollToProducts = () => {
 }
 
 export const HomePage = () => {
+
   return (
     <div 
       className="relative w-full h-full"
