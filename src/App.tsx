@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { HomePage, AboutPage, ProductsPage, ProductPage, ContactPage, LoginPage, RegisterPage } from './pages'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import { HomePage, AboutPage, ProductsPage, ProductPage, ContactPage, AuthPage } from './pages'
 import { Header } from './components/Header'
 import { HEADER_HEIGHT } from './constants/header'
 
@@ -62,16 +62,18 @@ const LandingPage = () => {
 }
 
 function App() {
+  const { pathname } = useLocation()
+  const hideHeaderRoutes = ['/auth']
+
   return (
-    <BrowserRouter>
-      <Header />
+    <>
+      {!hideHeaderRoutes.includes(pathname) && <Header />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/products/:id" element={<ProductPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/auth" element={<AuthPage />} />
       </Routes>
-    </BrowserRouter>
+    </>
   )
 }
 

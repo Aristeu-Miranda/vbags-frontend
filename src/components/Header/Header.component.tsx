@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Container } from '../Container'
 import logo from '@/assets/logo.png'
 import { Button } from "@/components/ui/button"
@@ -24,7 +24,7 @@ const scrollToSection = (sectionId: string) => {
 
     setTimeout(() => {
       const elementTop = element.offsetTop
-      
+
       window.scrollTo({
         top: elementTop,
         behavior: 'smooth'
@@ -54,7 +54,7 @@ export const Header = () => {
   const indicatorRef = useRef<HTMLDivElement>(null)
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
   const [activeSection, setActiveSection] = useState<string>('home')
-
+  const navigate = useNavigate()
   useEffect(() => {
     if (!showHeaderOptions) {
       setIndicatorStyle({ left: 0, width: 0 })
@@ -82,7 +82,7 @@ export const Header = () => {
       if (activeItem) {
         const navRect = navRef.current.getBoundingClientRect()
         const itemRect = activeItem.getBoundingClientRect()
-        
+
         setIndicatorStyle({
           left: itemRect.left - navRect.left,
           width: itemRect.width,
@@ -97,19 +97,23 @@ export const Header = () => {
     updateIndicator()
     window.addEventListener('scroll', handleScroll)
     window.addEventListener('resize', updateIndicator)
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('resize', updateIndicator)
     }
   }, [showHeaderOptions])
 
+  const handleLogin = () => {
+    navigate('/auth')
+  }
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 mx-auto shadow-md bg-white/90 backdrop-blur-sm">
       <Container>
         <div className="flex justify-between items-center">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="flex items-center gap-2"
             onClick={(e) => {
               if (pathname === '/') {
@@ -151,7 +155,7 @@ export const Header = () => {
                   />
                 </ul>
               </nav>
-              <Button variant="default" className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:block">Login</Button>
+              <Button variant="default" onClick={handleLogin} className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:block">Login</Button>
             </>
           ) : (
             <div />

@@ -137,7 +137,7 @@ export const ProductPage = () => {
 
           <div className="lg:col-span-5 flex flex-col gap-6">
             <h1 className="text-3xl md:text-4xl font-poppins font-semibold text-gray-900 leading-tight">{product.title}</h1>
-            <p className="text-3xl font-poppins font-semibold text-pink-light">{CURRENCY_FORMATTER.format(product.price)}</p>
+            <p className="text-3xl font-poppins font-semibold text-pink-light">{CURRENCY_FORMATTER.format(product.price)} <span className="text-gray-500 text-sm">no pix</span></p>
             <Button className="w-full sm:w-auto bg-pink-light text-white hover:bg-pink-dark cursor-pointer mt-4">
               Solicitar produto
             </Button>

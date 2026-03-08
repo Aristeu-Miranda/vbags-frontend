@@ -1,0 +1,440 @@
+import { useState, type FormEvent } from 'react'
+import { useSearchParams, Link } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { loginSchema, registerSchema, type LoginFormData, type RegisterFormData } from './Auth.schemas'
+import logo from '@/assets/logo.png'
+import { Mail, Lock, User, Phone, ArrowLeft, ShoppingBag, Sparkles, Heart } from 'lucide-react'
+
+type FieldErrors = Record<string, string>
+
+function getZodErrors(error: unknown): FieldErrors {
+    const errors: FieldErrors = {}
+    if (error && typeof error === 'object' && 'issues' in error) {
+        const zodError = error as { issues: Array<{ path: (string | number)[]; message: string }> }
+        for (const issue of zodError.issues) {
+            const key = issue.path.join('.')
+            if (!errors[key]) {
+                errors[key] = issue.message
+            }
+        }
+    }
+    return errors
+}
+
+export const AuthPage = () => {
+    const [searchParams, setSearchParams] = useSearchParams()
+    const mode = searchParams.get('mode') === 'register' ? 'register' : 'login'
+    const isRegister = mode === 'register'
+
+    const [loginData, setLoginData] = useState<LoginFormData>({ email: '', password: '' })
+    const [registerData, setRegisterData] = useState<RegisterFormData>({
+        name: '', email: '', password: '', confirmPassword: '', phone: '',
+    })
+    const [loginErrors, setLoginErrors] = useState<FieldErrors>({})
+    const [registerErrors, setRegisterErrors] = useState<FieldErrors>({})
+
+    const switchToRegister = () => {
+        setSearchParams({ mode: 'register' }, { replace: true })
+        setLoginErrors({})
+    }
+
+    const switchToLogin = () => {
+        setSearchParams({}, { replace: true })
+        setRegisterErrors({})
+    }
+
+    const handleLoginSubmit = (e: FormEvent) => {
+        e.preventDefault()
+        const result = loginSchema.safeParse(loginData)
+        if (!result.success) {
+            setLoginErrors(getZodErrors(result.error))
+            return
+        }
+        setLoginErrors({})
+        console.log('Login data:', result.data)
+    }
+
+    const handleRegisterSubmit = (e: FormEvent) => {
+        e.preventDefault()
+        const result = registerSchema.safeParse(registerData)
+        if (!result.success) {
+            setRegisterErrors(getZodErrors(result.error))
+            return
+        }
+        setRegisterErrors({})
+        console.log('Register data:', result.data)
+    }
+
+    return (
+        <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50 font-poppins p-4">
+
+            <Link
+                to="/"
+                className="absolute top-6 left-6 z-50 flex items-center gap-2 text-sm text-gray-500 hover:text-pink-light transition-colors duration-300"
+            >
+                <ArrowLeft className="w-4 h-4" />
+                Voltar
+            </Link>
+
+
+            <div
+                className="relative w-full max-w-[900px] bg-white rounded-2xl shadow-2xl shadow-pink-light/10 overflow-hidden flex min-h-[560px]"
+            >
+
+                <div
+                    className="w-1/2 flex items-center justify-center p-8 lg:p-12 transition-all duration-700 ease-in-out"
+                    style={{
+                        opacity: isRegister ? 0 : 1,
+                        pointerEvents: isRegister ? 'none' : 'auto',
+                        transform: isRegister ? 'translateX(-20%)' : 'translateX(0)',
+                    }}
+                >
+                    <div className="w-full max-w-sm space-y-6">
+                        <div className="flex flex-col items-center gap-2">
+                            <img src={logo} alt="V-Bags Logo" className="w-12 h-12" />
+                            <h1 className="text-2xl font-light tracking-tight text-gray-900">
+                                Bem-vinda de volta
+                            </h1>
+                            <p className="text-gray-400 text-xs">Entre na sua conta para continuar</p>
+                        </div>
+
+                        <form onSubmit={handleLoginSubmit} className="space-y-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="login-email" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
+                                    Email
+                                </Label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <Input
+                                        id="login-email"
+                                        type="email"
+                                        placeholder="seu@email.com"
+                                        value={loginData.email}
+                                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                                        className="pl-10 h-11 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
+                                    />
+                                </div>
+                                {loginErrors.email && (
+                                    <p className="text-xs text-red-500 mt-0.5">{loginErrors.email}</p>
+                                )}
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="login-password" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
+                                    Senha
+                                </Label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <Input
+                                        id="login-password"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={loginData.password}
+                                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                                        className="pl-10 h-11 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
+                                    />
+                                </div>
+                                {loginErrors.password && (
+                                    <p className="text-xs text-red-500 mt-0.5">{loginErrors.password}</p>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end">
+                                <button type="button" className="text-xs text-pink-light hover:text-pink-dark transition-colors cursor-pointer">
+                                    Esqueceu a senha?
+                                </button>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full h-11 rounded-xl bg-gradient-to-r from-pink-light to-pink-dark hover:from-pink-dark hover:to-pink-light text-white font-medium shadow-lg shadow-pink-light/25 transition-all duration-500 cursor-pointer text-sm"
+                            >
+                                Entrar
+                            </Button>
+                        </form>
+
+                        <div className="text-center">
+                            <p className="text-sm text-gray-400">
+                                Não tem conta?{' '}
+                                <button
+                                    type="button"
+                                    onClick={switchToRegister}
+                                    className="text-pink-light hover:text-pink-dark font-semibold transition-colors cursor-pointer"
+                                >
+                                    Cadastre-se
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div
+                    className="w-1/2 flex items-center justify-center p-8 lg:p-12 transition-all duration-700 ease-in-out"
+                    style={{
+                        opacity: isRegister ? 1 : 0,
+                        pointerEvents: isRegister ? 'auto' : 'none',
+                        transform: isRegister ? 'translateX(0)' : 'translateX(20%)',
+                    }}
+                >
+                    <div className="w-full max-w-sm space-y-5">
+                        <div className="flex flex-col items-center gap-2">
+                            <img src={logo} alt="V-Bags Logo" className="w-12 h-12" />
+                            <h1 className="text-2xl font-light tracking-tight text-gray-900">
+                                Crie sua conta
+                            </h1>
+                            <p className="text-gray-400 text-xs">Junte-se à V-Bags</p>
+                        </div>
+
+                        <form onSubmit={handleRegisterSubmit} className="space-y-3">
+                            <div className="space-y-1">
+                                <Label htmlFor="register-name" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
+                                    Nome
+                                </Label>
+                                <div className="relative">
+                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <Input
+                                        id="register-name"
+                                        type="text"
+                                        placeholder="Seu nome completo"
+                                        value={registerData.name}
+                                        onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
+                                        className="pl-10 h-10 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
+                                    />
+                                </div>
+                                {registerErrors.name && (
+                                    <p className="text-xs text-red-500">{registerErrors.name}</p>
+                                )}
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label htmlFor="register-email" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
+                                    Email
+                                </Label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <Input
+                                        id="register-email"
+                                        type="email"
+                                        placeholder="seu@email.com"
+                                        value={registerData.email}
+                                        onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                                        className="pl-10 h-10 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
+                                    />
+                                </div>
+                                {registerErrors.email && (
+                                    <p className="text-xs text-red-500">{registerErrors.email}</p>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                    <Label htmlFor="register-password" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
+                                        Senha
+                                    </Label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                        <Input
+                                            id="register-password"
+                                            type="password"
+                                            placeholder="••••••"
+                                            value={registerData.password}
+                                            onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                                            className="pl-10 h-10 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
+                                        />
+                                    </div>
+                                    {registerErrors.password && (
+                                        <p className="text-xs text-red-500">{registerErrors.password}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label htmlFor="register-confirm" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
+                                        Confirmar
+                                    </Label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                        <Input
+                                            id="register-confirm"
+                                            type="password"
+                                            placeholder="••••••"
+                                            value={registerData.confirmPassword}
+                                            onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                                            className="pl-10 h-10 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
+                                        />
+                                    </div>
+                                    {registerErrors.confirmPassword && (
+                                        <p className="text-xs text-red-500">{registerErrors.confirmPassword}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label htmlFor="register-phone" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
+                                    Telefone
+                                </Label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <Input
+                                        id="register-phone"
+                                        type="tel"
+                                        placeholder="(11) 99999-9999"
+                                        value={registerData.phone}
+                                        onChange={(e) => setRegisterData({ ...registerData, phone: e.target.value })}
+                                        className="pl-10 h-10 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
+                                    />
+                                </div>
+                                {registerErrors.phone && (
+                                    <p className="text-xs text-red-500">{registerErrors.phone}</p>
+                                )}
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full h-11 rounded-xl bg-gradient-to-r from-pink-dark to-pink-light hover:from-pink-light hover:to-pink-dark text-white font-medium shadow-lg shadow-pink-light/25 transition-all duration-500 cursor-pointer text-sm"
+                            >
+                                Criar Conta
+                            </Button>
+                        </form>
+
+                        <div className="text-center">
+                            <p className="text-sm text-gray-400">
+                                Já tem conta?{' '}
+                                <button
+                                    type="button"
+                                    onClick={switchToLogin}
+                                    className="text-pink-light hover:text-pink-dark font-semibold transition-colors cursor-pointer"
+                                >
+                                    Faça login
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div
+                    className="absolute top-0 w-1/2 h-full z-20 transition-transform duration-700 ease-in-out"
+                    style={{
+                        right: 0,
+                        transform: isRegister ? 'translateX(-100%)' : 'translateX(0)',
+                    }}
+                >
+                    <div className="relative w-full h-full overflow-hidden rounded-2xl">
+                        <div className="absolute inset-0 bg-gradient-to-br from-pink-light via-rose-400 to-pink-dark" />
+
+
+                        <div className="absolute inset-0">
+                            <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-white/10 blur-2xl animate-pulse" />
+                            <div className="absolute bottom-16 right-8 w-48 h-48 rounded-full bg-white/8 blur-3xl" />
+                            <div className="absolute top-1/2 left-1/3 w-24 h-24 rounded-full bg-white/5 blur-xl" />
+                            <div className="absolute top-1/4 right-1/4 w-16 h-16 rounded-full bg-white/10 blur-lg animate-pulse" style={{ animationDelay: '1s' }} />
+                        </div>
+
+
+                        <div
+                            className="absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out"
+                            style={{
+                                opacity: isRegister ? 0 : 1,
+                                transform: isRegister ? 'translateX(30%)' : 'translateX(0)',
+                                pointerEvents: isRegister ? 'none' : 'auto',
+                            }}
+                        >
+                            <div className="relative z-10 text-center text-white px-8 space-y-6">
+                                <div className="flex justify-center">
+                                    <div className="w-20 h-20 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
+                                        <ShoppingBag className="w-10 h-10 text-white" />
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <h2 className="text-3xl font-light leading-tight">
+                                        Descubra sua <br />
+                                        <span className="font-semibold">bolsa perfeita</span>
+                                    </h2>
+                                    <p className="text-white/75 text-sm leading-relaxed max-w-xs mx-auto">
+                                        Explore nossa coleção exclusiva com designs únicos e materiais premium.
+                                    </p>
+                                </div>
+                                <div className="flex justify-center gap-5 pt-2">
+                                    <div className="flex flex-col items-center gap-1">
+                                        <Sparkles className="w-4 h-4 text-white/60" />
+                                        <span className="text-[10px] text-white/60">Premium</span>
+                                    </div>
+                                    <div className="w-px h-8 bg-white/20" />
+                                    <div className="flex flex-col items-center gap-1">
+                                        <Heart className="w-4 h-4 text-white/60" />
+                                        <span className="text-[10px] text-white/60">Exclusivo</span>
+                                    </div>
+                                    <div className="w-px h-8 bg-white/20" />
+                                    <div className="flex flex-col items-center gap-1">
+                                        <ShoppingBag className="w-4 h-4 text-white/60" />
+                                        <span className="text-[10px] text-white/60">Estilo</span>
+                                    </div>
+                                </div>
+                                <Button
+                                    type="button"
+                                    onClick={switchToRegister}
+                                    className="bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white border border-white/25 rounded-xl px-8 h-10 font-medium transition-all duration-300 cursor-pointer text-sm"
+                                >
+                                    Criar Conta
+                                </Button>
+                            </div>
+                        </div>
+
+
+                        <div
+                            className="absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out"
+                            style={{
+                                opacity: isRegister ? 1 : 0,
+                                transform: isRegister ? 'translateX(0)' : 'translateX(-30%)',
+                                pointerEvents: isRegister ? 'auto' : 'none',
+                            }}
+                        >
+                            <div className="relative z-10 text-center text-white px-8 space-y-6">
+                                <div className="flex justify-center">
+                                    <div className="w-20 h-20 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
+                                        <Heart className="w-10 h-10 text-white" />
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <h2 className="text-3xl font-light leading-tight">
+                                        Já faz parte <br />
+                                        <span className="font-semibold">da família?</span>
+                                    </h2>
+                                    <p className="text-white/75 text-sm leading-relaxed max-w-xs mx-auto">
+                                        Faça login para acompanhar seus pedidos e descobrir novidades exclusivas.
+                                    </p>
+                                </div>
+                                <div className="flex justify-center gap-5 pt-2">
+                                    <div className="flex flex-col items-center gap-1">
+                                        <ShoppingBag className="w-4 h-4 text-white/60" />
+                                        <span className="text-[10px] text-white/60">Pedidos</span>
+                                    </div>
+                                    <div className="w-px h-8 bg-white/20" />
+                                    <div className="flex flex-col items-center gap-1">
+                                        <Heart className="w-4 h-4 text-white/60" />
+                                        <span className="text-[10px] text-white/60">Favoritos</span>
+                                    </div>
+                                    <div className="w-px h-8 bg-white/20" />
+                                    <div className="flex flex-col items-center gap-1">
+                                        <Sparkles className="w-4 h-4 text-white/60" />
+                                        <span className="text-[10px] text-white/60">Ofertas</span>
+                                    </div>
+                                </div>
+                                <Button
+                                    type="button"
+                                    onClick={switchToLogin}
+                                    className="bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white border border-white/25 rounded-xl px-8 h-10 font-medium transition-all duration-300 cursor-pointer text-sm"
+                                >
+                                    Fazer Login
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
