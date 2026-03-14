@@ -13,7 +13,7 @@ export const loginSchema = z.object({
 
 export const registerSchema = z
     .object({
-        name: z
+        username: z
             .string()
             .min(1, 'O nome é obrigatório')
             .min(2, 'O nome deve ter no mínimo 2 caracteres'),
@@ -28,13 +28,6 @@ export const registerSchema = z
         confirmPassword: z
             .string()
             .min(1, 'Confirme sua senha'),
-        phone: z
-            .string()
-            .min(1, 'O telefone é obrigatório')
-            .regex(
-                /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/,
-                'Digite um telefone válido. Ex: (11) 99999-9999'
-            ),
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: 'As senhas não coincidem',

@@ -1,3 +1,8 @@
+export type LoginType = {
+    identifier: string,
+    password: string,
+}
+
 export type AuthResponse = {
     jwt: string,
     user: {
@@ -8,3 +13,10 @@ export type AuthResponse = {
         confirmed: boolean,
     }
 }
+
+export type RegisterType = {
+    username: string,
+    email: string,
+    password: string,
+}
+

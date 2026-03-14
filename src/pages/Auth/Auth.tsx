@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { loginSchema, registerSchema, type LoginFormData, type RegisterFormData } from './Auth.schemas'
 import logo from '@/assets/logo.png'
-import { Mail, Lock, User, Phone, ArrowLeft, ShoppingBag, Sparkles, Heart } from 'lucide-react'
+import { Mail, Lock, User, ArrowLeft, ShoppingBag, Sparkles, Heart } from 'lucide-react'
 import { useLogin } from '@/services/auth/auth.hooks'
+import { register } from '@/services/auth/auth'
 
 type FieldErrors = Record<string, string>
 
@@ -33,7 +34,7 @@ export const AuthPage = () => {
 
     const [loginData, setLoginData] = useState<LoginFormData>({ identifier: '', password: '' })
     const [registerData, setRegisterData] = useState<RegisterFormData>({
-        name: '', email: '', password: '', confirmPassword: '', phone: '',
+        username: '', email: '', password: '', confirmPassword: '',
     })
     const [loginErrors, setLoginErrors] = useState<FieldErrors>({})
     const [registerErrors, setRegisterErrors] = useState<FieldErrors>({})
@@ -72,7 +73,7 @@ export const AuthPage = () => {
         }
     }
 
-    const handleRegisterSubmit = (e: FormEvent) => {
+    const handleRegisterSubmit = async (e: FormEvent) => {
         e.preventDefault()
         const result = registerSchema.safeParse(registerData)
         if (!result.success) {
@@ -80,8 +81,22 @@ export const AuthPage = () => {
             return
         }
         setRegisterErrors({})
+        try {
+            const response = await register({ username: result.data.username, email: result.data.email, password: result.data.password })
+            if (!response.user.confirmed) {
+                setRegisterErrors({ root: 'Conta não confirmada. Verifique seu email para confirmar.' })
+                return
+            }
+            localStorage.setItem('token', response.jwt)
+            localStorage.setItem('user', JSON.stringify(response.user))
+            navigate('/')
+        } catch (error) {
+            setRegisterErrors({ root: 'Erro ao criar conta.' })
+        } finally {
+            setRegisterData({ username: '', email: '', password: '', confirmPassword: '' })
+        }
         console.log('Register data:', result.data)
-        setRegisterData({ name: '', email: '', password: '', confirmPassword: '', phone: '' })
+        setRegisterData({ username: '', email: '', password: '', confirmPassword: '' })
     }
 
     return (
@@ -221,8 +236,8 @@ export const AuthPage = () => {
                                         id="register-name"
                                         type="text"
                                         placeholder="Seu nome completo"
-                                        value={registerData.name}
-                                        onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
+                                        value={registerData.username}
+                                        onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
                                         className="pl-10 h-10 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
                                     />
                                 </div>
@@ -291,26 +306,6 @@ export const AuthPage = () => {
                                         <p className="text-xs text-red-500">{registerErrors.confirmPassword}</p>
                                     )}
                                 </div>
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label htmlFor="register-phone" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
-                                    Telefone
-                                </Label>
-                                <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    <Input
-                                        id="register-phone"
-                                        type="tel"
-                                        placeholder="(11) 99999-9999"
-                                        value={registerData.phone}
-                                        onChange={(e) => setRegisterData({ ...registerData, phone: e.target.value })}
-                                        className="pl-10 h-10 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
-                                    />
-                                </div>
-                                {registerErrors.phone && (
-                                    <p className="text-xs text-red-500">{registerErrors.phone}</p>
-                                )}
                             </div>
 
                             <Button
