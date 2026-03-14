@@ -171,9 +171,11 @@ export const Header = () => {
         </div>
 
       </Container>
-      {isAuthenticated && (
-        <Button variant="ghost" onClick={handleLogout} className="hidden sm:block cursor-pointer"><LogOut className="w-4 h-4" /></Button>
-      )}
+      {isAuthenticated &&
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" onClick={handleLogout} className="hidden sm:block cursor-pointer"><LogOut className="w-4 h-4" /></Button>
+        </div>
+      }
     </header>
   )
 }
