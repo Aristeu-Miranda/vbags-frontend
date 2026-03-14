@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useRef, useState } from 'react'
 import { HEADER_HEIGHT } from '@/constants/header'
 import { LogOut } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 const NAVIGATION_ITEMS = [
   { path: '/about', label: 'Sobre', sectionId: 'about' },
@@ -54,8 +55,8 @@ export const Header = () => {
   const navRef = useRef<HTMLUListElement>(null)
   const indicatorRef = useRef<HTMLDivElement>(null)
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
-  const [activeSection, setActiveSection] = useState<string>('home')
   const navigate = useNavigate()
+  const { isAuthenticated, logout } = useAuth()
   useEffect(() => {
     if (!showHeaderOptions) {
       setIndicatorStyle({ left: 0, width: 0 })
@@ -66,7 +67,6 @@ export const Header = () => {
       if (!navRef.current || !indicatorRef.current) return
 
       const currentSection = getActiveSection()
-      setActiveSection(currentSection || 'home')
 
       const activeIndex = NAVIGATION_ITEMS.findIndex(
         item => item.sectionId === currentSection
@@ -105,8 +105,6 @@ export const Header = () => {
     }
   }, [showHeaderOptions])
 
-  const isAuthenticated = !!localStorage.getItem('token')
-
   const handleLogin = () => {
     if (isAuthenticated) {
       navigate('/orders')
@@ -116,8 +114,7 @@ export const Header = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    logout()
     navigate('/auth')
   }
 
@@ -138,7 +135,7 @@ export const Header = () => {
             <img src={logo} alt="Logo" className="w-10 h-10" />
             <h1 className="text-xl font-extralight font-poppins">V-Bags</h1>
           </Link>
-          {showHeaderOptions ? (
+          {showHeaderOptions && (
             <>
               <nav className="w-1/2 justify-center items-center flex">
                 <ul
@@ -170,10 +167,6 @@ export const Header = () => {
               </nav>
               <Button variant="default" onClick={handleLogin} className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:block">{isAuthenticated ? 'Minhas Ordens' : 'Login'}</Button>
             </>
-          ) : (
-
-            <div />
-
           )}
         </div>
 

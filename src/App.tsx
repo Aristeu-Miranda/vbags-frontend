@@ -1,7 +1,8 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { HomePage, AboutPage, ProductsPage, ProductPage, ContactPage, AuthPage } from './pages'
+import { HomePage, AboutPage, ProductsPage, ProductPage, ContactPage, AuthPage, OrdersPage } from './pages'
 import { Header } from './components/Header'
 import { HEADER_HEIGHT } from './constants/header'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 const LandingPage = () => {
   return (
@@ -72,6 +73,9 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/products/:id" element={<ProductPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/orders" element={<OrdersPage />} />
+        </Route>
       </Routes>
     </>
   )

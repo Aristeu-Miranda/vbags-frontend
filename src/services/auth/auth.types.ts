@@ -3,15 +3,22 @@ export type LoginType = {
     password: string,
 }
 
+export type AuthUser = {
+    id: number,
+    name: string,
+    email: string,
+    phone: string,
+    confirmed: boolean,
+}
+
 export type AuthResponse = {
     jwt: string,
-    user: {
-        id: number,
-        name: string,
-        email: string,
-        phone: string,
-        confirmed: boolean,
-    }
+    user: AuthUser,
+}
+
+export type AuthSession = {
+    token: string,
+    user: AuthUser,
 }
 
 export type RegisterType = {
@@ -19,4 +26,3 @@ export type RegisterType = {
     email: string,
     password: string,
 }
-

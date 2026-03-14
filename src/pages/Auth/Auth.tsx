@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +8,7 @@ import logo from '@/assets/logo.png'
 import { Mail, Lock, User, ArrowLeft, ShoppingBag, Sparkles, Heart } from 'lucide-react'
 import { useLogin } from '@/services/auth/auth.hooks'
 import { register } from '@/services/auth/auth'
+import { useAuth } from '@/contexts/AuthContext'
 
 type FieldErrors = Record<string, string>
 
@@ -28,6 +29,7 @@ function getZodErrors(error: unknown): FieldErrors {
 export const AuthPage = () => {
     const navigate = useNavigate()
     const { mutateAsync: loginMutation } = useLogin()
+    const { setSession, isAuthenticated } = useAuth()
     const [searchParams, setSearchParams] = useSearchParams()
     const mode = searchParams.get('mode') === 'register' ? 'register' : 'login'
     const isRegister = mode === 'register'
@@ -38,6 +40,12 @@ export const AuthPage = () => {
     })
     const [loginErrors, setLoginErrors] = useState<FieldErrors>({})
     const [registerErrors, setRegisterErrors] = useState<FieldErrors>({})
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/', { replace: true })
+        }
+    }, [isAuthenticated, navigate])
 
     const switchToRegister = () => {
         setSearchParams({ mode: 'register' }, { replace: true })
@@ -63,8 +71,7 @@ export const AuthPage = () => {
                 setLoginErrors({ root: 'Conta não confirmada. Verifique seu email para confirmar.' })
                 return
             }
-            localStorage.setItem('token', response.jwt)
-            localStorage.setItem('user', JSON.stringify(response.user))
+            setSession(response)
             navigate('/')
         } catch (error) {
             setLoginErrors({ root: 'Credenciais inválidas.' })
@@ -87,8 +94,7 @@ export const AuthPage = () => {
                 setRegisterErrors({ root: 'Conta não confirmada. Verifique seu email para confirmar.' })
                 return
             }
-            localStorage.setItem('token', response.jwt)
-            localStorage.setItem('user', JSON.stringify(response.user))
+            setSession(response)
             navigate('/')
         } catch (error) {
             setRegisterErrors({ root: 'Erro ao criar conta.' })
