@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { loginSchema, registerSchema, type LoginFormData, type RegisterFormData } from './Auth.schemas'
 import logo from '@/assets/logo.png'
 import { Mail, Lock, User, Phone, ArrowLeft, ShoppingBag, Sparkles, Heart } from 'lucide-react'
+import { useLogin } from '@/services/auth/auth.hooks'
 
 type FieldErrors = Record<string, string>
 
@@ -24,11 +25,13 @@ function getZodErrors(error: unknown): FieldErrors {
 }
 
 export const AuthPage = () => {
+    const navigate = useNavigate()
+    const { mutateAsync: loginMutation } = useLogin()
     const [searchParams, setSearchParams] = useSearchParams()
     const mode = searchParams.get('mode') === 'register' ? 'register' : 'login'
     const isRegister = mode === 'register'
 
-    const [loginData, setLoginData] = useState<LoginFormData>({ email: '', password: '' })
+    const [loginData, setLoginData] = useState<LoginFormData>({ identifier: '', password: '' })
     const [registerData, setRegisterData] = useState<RegisterFormData>({
         name: '', email: '', password: '', confirmPassword: '', phone: '',
     })
@@ -45,7 +48,7 @@ export const AuthPage = () => {
         setRegisterErrors({})
     }
 
-    const handleLoginSubmit = (e: FormEvent) => {
+    const handleLoginSubmit = async (e: FormEvent) => {
         e.preventDefault()
         const result = loginSchema.safeParse(loginData)
         if (!result.success) {
@@ -53,7 +56,20 @@ export const AuthPage = () => {
             return
         }
         setLoginErrors({})
-        console.log('Login data:', result.data)
+        try {
+            const response = await loginMutation({ identifier: result.data.identifier, password: result.data.password })
+            if (!response.user.confirmed) {
+                setLoginErrors({ root: 'Conta não confirmada. Verifique seu email para confirmar.' })
+                return
+            }
+            localStorage.setItem('token', response.jwt)
+            localStorage.setItem('user', JSON.stringify(response.user))
+            navigate('/')
+        } catch (error) {
+            setLoginErrors({ root: 'Credenciais inválidas.' })
+        } finally {
+            setLoginData({ identifier: '', password: '' })
+        }
     }
 
     const handleRegisterSubmit = (e: FormEvent) => {
@@ -65,6 +81,7 @@ export const AuthPage = () => {
         }
         setRegisterErrors({})
         console.log('Register data:', result.data)
+        setRegisterData({ name: '', email: '', password: '', confirmPassword: '', phone: '' })
     }
 
     return (
@@ -101,6 +118,11 @@ export const AuthPage = () => {
                         </div>
 
                         <form onSubmit={handleLoginSubmit} className="space-y-4">
+                            {loginErrors.root && (
+                                <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl text-center">
+                                    {loginErrors.root}
+                                </div>
+                            )}
                             <div className="space-y-1.5">
                                 <Label htmlFor="login-email" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
                                     Email
@@ -111,13 +133,13 @@ export const AuthPage = () => {
                                         id="login-email"
                                         type="email"
                                         placeholder="seu@email.com"
-                                        value={loginData.email}
-                                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                                        value={loginData.identifier}
+                                        onChange={(e) => setLoginData({ ...loginData, identifier: e.target.value })}
                                         className="pl-10 h-11 rounded-xl border-gray-200 focus-visible:border-pink-light focus-visible:ring-pink-light/20 transition-all duration-300"
                                     />
                                 </div>
-                                {loginErrors.email && (
-                                    <p className="text-xs text-red-500 mt-0.5">{loginErrors.email}</p>
+                                {loginErrors.identifier && (
+                                    <p className="text-xs text-red-500 mt-0.5">{loginErrors.identifier}</p>
                                 )}
                             </div>
 

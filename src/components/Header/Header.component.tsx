@@ -4,6 +4,7 @@ import logo from '@/assets/logo.png'
 import { Button } from "@/components/ui/button"
 import { useEffect, useRef, useState } from 'react'
 import { HEADER_HEIGHT } from '@/constants/header'
+import { LogOut } from 'lucide-react'
 
 const NAVIGATION_ITEMS = [
   { path: '/about', label: 'Sobre', sectionId: 'about' },
@@ -104,12 +105,24 @@ export const Header = () => {
     }
   }, [showHeaderOptions])
 
+  const isAuthenticated = !!localStorage.getItem('token')
+
   const handleLogin = () => {
+    if (isAuthenticated) {
+      navigate('/orders')
+      return
+    }
+    navigate('/auth')
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
     navigate('/auth')
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 mx-auto shadow-md bg-white/90 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 mx-auto shadow-md bg-white/90 backdrop-blur-sm flex items-center justify-between pr-4">
       <Container>
         <div className="flex justify-between items-center">
           <Link
@@ -155,13 +168,19 @@ export const Header = () => {
                   />
                 </ul>
               </nav>
-              <Button variant="default" onClick={handleLogin} className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:block">Login</Button>
+              <Button variant="default" onClick={handleLogin} className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:block">{isAuthenticated ? 'Minhas Ordens' : 'Login'}</Button>
             </>
           ) : (
+
             <div />
+
           )}
         </div>
+
       </Container>
+      {isAuthenticated && (
+        <Button variant="ghost" onClick={handleLogout} className="hidden sm:block cursor-pointer"><LogOut className="w-4 h-4" /></Button>
+      )}
     </header>
   )
 }
