@@ -57,6 +57,8 @@ const getActiveSection = (): string | null => {
   return 'home'
 }
 
+const ORDERS_PATH = '/orders'
+
 export const Header = () => {
   const { pathname } = useLocation()
   const showHeaderOptions = pathname === '/'
@@ -115,7 +117,7 @@ export const Header = () => {
 
   const handleLogin = () => {
     if (isAuthenticated) {
-      navigate('/orders')
+      navigate(ORDERS_PATH)
       return
     }
     navigate('/auth')

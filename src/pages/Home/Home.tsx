@@ -1,5 +1,6 @@
 import heroVideo from '@/assets/Luxury_Crochet_Handbag_Crafting_Video.mp4'
 import { Button } from '@/components/ui/button'
+import { useNavigate } from 'react-router-dom'
 
 const scrollToProducts = () => {
   const element = document.getElementById('products')
@@ -15,6 +16,11 @@ const scrollToProducts = () => {
 }
 
 export const HomePage = () => {
+
+  const navigate = useNavigate()
+  const handleViewProducts = () => {
+    navigate('/orders')
+  }
 
   return (
     <div className="relative w-full h-full overflow-hidden" style={{ height: '100%' }}>
@@ -44,7 +50,7 @@ export const HomePage = () => {
         >
           Ver produtos
         </Button>
-        <Button variant="outline" className="bg-white text-pink-dark font-poppins cursor-pointer">Fazer pedido</Button>
+        <Button variant="outline" className="bg-white text-pink-dark font-poppins cursor-pointer" onClick={handleViewProducts}>Fazer pedido</Button>
         </div>
       </div>
     </div>

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { HEADER_HEIGHT } from "@/constants/header"
 import { cn } from "@/lib/utils"
 import { useProductsPageData } from "../Products/Products.hooks"
+import { useAuth } from "@/contexts/AuthContext"
+import { useOrderCart } from "@/contexts/OrderCartContext"
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -19,7 +21,8 @@ export const ProductPage = () => {
   const [descriptionOverflows, setDescriptionOverflows] = useState(false)
   const descriptionRef = useRef<HTMLParagraphElement>(null)
   const { products, isLoading, isError } = useProductsPageData()
-
+  const { isAuthenticated } = useAuth()
+  const { addOrMergeLine } = useOrderCart()
   const product = useMemo(() => {
     return products.find((item) => item.id === productId)
   }, [productId, products])
@@ -88,6 +91,23 @@ export const ProductPage = () => {
     setSelectedImageIndex((currentIndex) => {
       return currentIndex === images.length - 1 ? 0 : currentIndex + 1
     })
+  }
+
+  const handleRequestProduct = (isAuthenticated: boolean) => {
+    if (!isAuthenticated) return navigate("/auth?mode=login")
+
+    const cover = product.images[0]
+    addOrMergeLine({
+      productId: product.id,
+      title: product.title,
+      imageUrl: cover?.url ?? "",
+      imageAlt: cover?.altText ?? product.title,
+      unitPrice: product.price,
+      stock: product.stock,
+      quantity: 1,
+    })
+
+    return navigate("/orders")
   }
 
   return (
@@ -205,13 +225,13 @@ export const ProductPage = () => {
                       {descriptionExpanded ? "Ver menos" : "Ver descrição completa"}
                     </Button>
                   )}
-                  <Button className="w-full min-h-11 rounded-xl bg-pink-light text-white hover:bg-pink-dark cursor-pointer text-base font-poppins font-medium shadow-sm">
+                  <Button className="w-full min-h-11 rounded-xl bg-pink-light text-white hover:bg-pink-dark cursor-pointer text-base font-poppins font-medium shadow-sm" onClick={() => handleRequestProduct(isAuthenticated)}>
                     Solicitar produto
                   </Button>
                 </div>
               ) : (
                 <div className="shrink-0 pt-1">
-                  <Button className="w-full min-h-11 rounded-xl bg-pink-light text-white hover:bg-pink-dark cursor-pointer text-base font-poppins font-medium shadow-sm">
+                  <Button className="w-full min-h-11 rounded-xl bg-pink-light text-white hover:bg-pink-dark cursor-pointer text-base font-poppins font-medium shadow-sm" onClick={() => handleRequestProduct(isAuthenticated)}>
                     Solicitar produto
                   </Button>
                 </div>
