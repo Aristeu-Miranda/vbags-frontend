@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import logo from '@/assets/logo.png'
+import { Checkout } from '@/components/Checkout'
 import { OrderCard } from '@/components/OrderCard'
 import { HEADER_HEIGHT } from '@/constants/header'
 import { useOrderCart } from '@/contexts/OrderCartContext'
@@ -63,23 +64,39 @@ export const OrdersPage = () => {
                 </button>
               </div>
             ) : (
-              <ul className="flex max-w-3xl flex-col gap-4">
-                {lines.map(({ productId, imageUrl, imageAlt, title, unitPrice, quantity, stock }) => (
-                  <li key={productId}>
-                    <OrderCard
-                      imageUrl={imageUrl}
-                      imageAlt={imageAlt}
-                      title={title}
-                      unitPrice={unitPrice}
-                      quantity={quantity}
-                      stock={stock}
-                      statusLabel="Pendente"
-                      onQuantityChange={(next) => setLineQuantity(productId, next)}
-                      onRemove={() => removeLine(productId)}
-                    />
-                  </li>
-                ))}
-              </ul>
+              <div className="grid w-full grid-cols-1 gap-8 lg:grid-cols-12 lg:items-start lg:gap-10">
+                <ul className="flex min-w-0 flex-col gap-4 lg:col-span-7 xl:col-span-8">
+                  {lines.map(({ productId, imageUrl, imageAlt, title, unitPrice, quantity, stock }) => (
+                    <li key={productId}>
+                      <OrderCard
+                        imageUrl={imageUrl}
+                        imageAlt={imageAlt}
+                        title={title}
+                        unitPrice={unitPrice}
+                        quantity={quantity}
+                        stock={stock}
+                        statusLabel="Pendente"
+                        onQuantityChange={(next) => setLineQuantity(productId, next)}
+                        onRemove={() => removeLine(productId)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+
+                <div
+                  className="flex min-w-0 flex-col gap-4 lg:sticky lg:col-span-5 xl:col-span-4"
+                  style={{ top: HEADER_HEIGHT + 16 }}
+                >
+                  <Checkout lines={lines} shippingAmount={null} />
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full cursor-pointer rounded-xl bg-pink-light py-3.5 font-poppins text-base font-semibold text-white opacity-50 shadow-sm"
+                  >
+                    Solicitar
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>

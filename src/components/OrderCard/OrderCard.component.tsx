@@ -79,7 +79,7 @@ export const OrderCard = ({
               type="button"
               onClick={onRemove}
               className={cn(
-                'shrink-0 rounded-xl p-2.5 text-[#8b6f5c] transition-colors',
+                'shrink-0 cursor-pointer rounded-xl p-2.5 text-[#8b6f5c] transition-colors',
                 'hover:bg-[#f0e6df] hover:text-[#cb2040] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-light/40',
               )}
               aria-label={`Remover ${title} do pedido`}
@@ -107,8 +107,8 @@ export const OrderCard = ({
                     'flex h-10 w-10 items-center justify-center rounded-l-xl transition-colors',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pink-light/35',
                     canDecrease
-                      ? 'text-[#5c3d2e] hover:bg-[#efe4dc] cursor-pointer'
-                      : 'cursor-not-allowed text-[#c4b5a8] opacity-50',
+                      ? 'cursor-pointer text-[#5c3d2e] hover:bg-[#efe4dc]'
+                      : 'cursor-pointer text-[#c4b5a8] opacity-50',
                   )}
                   aria-label="Diminuir quantidade"
                 >
@@ -128,8 +128,8 @@ export const OrderCard = ({
                     'flex h-10 w-10 items-center justify-center rounded-r-xl transition-colors',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pink-light/35',
                     canIncrease
-                      ? 'text-[#5c3d2e] hover:bg-[#efe4dc] cursor-pointer'
-                      : 'cursor-not-allowed text-[#c4b5a8] opacity-50',
+                      ? 'cursor-pointer text-[#5c3d2e] hover:bg-[#efe4dc]'
+                      : 'cursor-pointer text-[#c4b5a8] opacity-50',
                   )}
                   aria-label="Aumentar quantidade"
                 >
