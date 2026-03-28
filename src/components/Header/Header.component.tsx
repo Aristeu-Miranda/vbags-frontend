@@ -2,10 +2,18 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Container } from '../Container'
 import logo from '@/assets/logo.png'
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useEffect, useRef, useState } from 'react'
 import { HEADER_HEIGHT } from '@/constants/header'
-import { LogOut } from 'lucide-react'
+import { LogOut, Menu } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { cn } from '@/lib/utils'
 
 const NAVIGATION_ITEMS = [
   { path: '/about', label: 'Sobre', sectionId: 'about' },
@@ -137,10 +145,10 @@ export const Header = () => {
           </Link>
           {showHeaderOptions && (
             <>
-              <nav className="w-1/2 justify-center items-center flex">
+              <nav className="hidden sm:flex flex-1 min-w-0 justify-center items-center">
                 <ul
                   ref={navRef}
-                  className=" items-center font-poppins text-sm justify-between w-full lg:w-1/2 relative hidden sm:flex"
+                  className="items-center font-poppins text-sm justify-between w-full max-w-md lg:w-1/2 relative flex"
                 >
                   {NAVIGATION_ITEMS.map((item) => (
                     <li className="cursor-pointer mb-1" key={item.path}>
@@ -165,17 +173,69 @@ export const Header = () => {
                   />
                 </ul>
               </nav>
-              <Button variant="default" onClick={handleLogin} className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:block">{isAuthenticated ? 'Minhas Ordens' : 'Login'}</Button>
+              <Button
+                variant="default"
+                onClick={handleLogin}
+                className="bg-pink-light text-white font-poppins hover:bg-pink-dark cursor-pointer hidden sm:inline-flex shrink-0"
+              >
+                {isAuthenticated ? 'Minhas Ordens' : 'Login'}
+              </Button>
+              <div className="flex sm:hidden shrink-0">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="border-border text-foreground hover:bg-accent"
+                      aria-label="Abrir menu de navegação"
+                    >
+                      <Menu className="size-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-48 font-poppins">
+                    {NAVIGATION_ITEMS.map((item) => (
+                      <DropdownMenuItem
+                        key={item.path}
+                        className="cursor-pointer"
+                        onSelect={() => scrollToSection(item.sectionId)}
+                      >
+                        {item.label}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="cursor-pointer" onSelect={() => handleLogin()}>
+                      {isAuthenticated ? 'Minhas Ordens' : 'Login'}
+                    </DropdownMenuItem>
+                    {isAuthenticated && (
+                      <DropdownMenuItem
+                        className="cursor-pointer text-destructive focus:text-destructive"
+                        onSelect={() => handleLogout()}
+                      >
+                        <LogOut className="size-4" />
+                        Sair
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </>
           )}
         </div>
 
       </Container>
-      {isAuthenticated &&
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" onClick={handleLogout} className="hidden sm:block cursor-pointer"><LogOut className="w-4 h-4" /></Button>
+      {isAuthenticated && (
+        <div
+          className={cn(
+            'flex items-center gap-2',
+            showHeaderOptions && 'hidden sm:flex'
+          )}
+        >
+          <Button variant="ghost" onClick={handleLogout} className="cursor-pointer" aria-label="Sair">
+            <LogOut className="w-4 h-4" />
+          </Button>
         </div>
-      }
+      )}
     </header>
   )
 }

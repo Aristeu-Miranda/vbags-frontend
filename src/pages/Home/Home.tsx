@@ -1,4 +1,4 @@
-import heroBg from '@/assets/hero-bg.jpg'
+import heroVideo from '@/assets/Luxury_Crochet_Handbag_Crafting_Video.mp4'
 import { Button } from '@/components/ui/button'
 
 const scrollToProducts = () => {
@@ -17,16 +17,15 @@ const scrollToProducts = () => {
 export const HomePage = () => {
 
   return (
-    <div 
-      className="relative w-full h-full"
-      style={{
-        height: '100%',
-        backgroundImage: `url(${heroBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
+    <div className="relative w-full h-full overflow-hidden" style={{ height: '100%' }}>
+      <video
+        className="absolute inset-0 h-full w-full object-cover"
+        src={heroVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
       <div className="absolute inset-0 bg-black/60" />
       
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-white px-4 gap-6">

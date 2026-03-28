@@ -9,8 +9,24 @@ import { Mail, Lock, User, ArrowLeft, ShoppingBag, Sparkles, Heart } from 'lucid
 import { useLogin } from '@/services/auth/auth.hooks'
 import { register } from '@/services/auth/auth'
 import { useAuth } from '@/contexts/AuthContext'
+import { cn } from '@/lib/utils'
 
 type FieldErrors = Record<string, string>
+
+function useIsLgBreakpoint() {
+    const [isLg, setIsLg] = useState(() =>
+        typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false,
+    )
+
+    useEffect(() => {
+        const mq = window.matchMedia('(min-width: 1024px)')
+        const onChange = () => setIsLg(mq.matches)
+        mq.addEventListener('change', onChange)
+        return () => mq.removeEventListener('change', onChange)
+    }, [])
+
+    return isLg
+}
 
 function getZodErrors(error: unknown): FieldErrors {
     const errors: FieldErrors = {}
@@ -27,6 +43,7 @@ function getZodErrors(error: unknown): FieldErrors {
 }
 
 export const AuthPage = () => {
+    const isLg = useIsLgBreakpoint()
     const navigate = useNavigate()
     const { mutateAsync: loginMutation } = useLogin()
     const { setSession, isAuthenticated } = useAuth()
@@ -106,11 +123,11 @@ export const AuthPage = () => {
     }
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50 font-poppins p-4">
+        <div className="min-h-screen w-full flex max-lg:items-start lg:items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50 font-poppins px-3 sm:px-4 py-8 pt-16 sm:pt-8 pb-10 sm:pb-8 overflow-x-hidden">
 
             <Link
                 to="/"
-                className="absolute top-6 left-6 z-50 flex items-center gap-2 text-sm text-gray-500 hover:text-pink-light transition-colors duration-300"
+                className="absolute top-4 left-4 z-50 flex items-center gap-2 text-sm text-gray-500 hover:text-pink-light transition-colors duration-300 sm:top-6 sm:left-6"
             >
                 <ArrowLeft className="w-4 h-4" />
                 Voltar
@@ -118,16 +135,23 @@ export const AuthPage = () => {
 
 
             <div
-                className="relative w-full max-w-[900px] bg-white rounded-2xl shadow-2xl shadow-pink-light/10 overflow-hidden flex min-h-[560px]"
+                className="relative w-full max-w-[900px] bg-white rounded-2xl shadow-2xl shadow-pink-light/10 overflow-hidden flex flex-col lg:flex-row lg:min-h-[560px] min-w-0"
             >
 
                 <div
-                    className="w-1/2 flex items-center justify-center p-8 lg:p-12 transition-all duration-700 ease-in-out"
-                    style={{
-                        opacity: isRegister ? 0 : 1,
-                        pointerEvents: isRegister ? 'none' : 'auto',
-                        transform: isRegister ? 'translateX(-20%)' : 'translateX(0)',
-                    }}
+                    className={cn(
+                        'w-full min-w-0 lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12 transition-all duration-700 ease-in-out',
+                        isRegister && 'max-lg:hidden',
+                    )}
+                    style={
+                        isLg
+                            ? {
+                                  opacity: isRegister ? 0 : 1,
+                                  pointerEvents: isRegister ? 'none' : 'auto',
+                                  transform: isRegister ? 'translateX(-20%)' : 'translateX(0)',
+                              }
+                            : undefined
+                    }
                 >
                     <div className="w-full max-w-sm space-y-6">
                         <div className="flex flex-col items-center gap-2">
@@ -215,12 +239,19 @@ export const AuthPage = () => {
 
 
                 <div
-                    className="w-1/2 flex items-center justify-center p-8 lg:p-12 transition-all duration-700 ease-in-out"
-                    style={{
-                        opacity: isRegister ? 1 : 0,
-                        pointerEvents: isRegister ? 'auto' : 'none',
-                        transform: isRegister ? 'translateX(0)' : 'translateX(20%)',
-                    }}
+                    className={cn(
+                        'w-full min-w-0 lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12 transition-all duration-700 ease-in-out',
+                        !isRegister && 'max-lg:hidden',
+                    )}
+                    style={
+                        isLg
+                            ? {
+                                  opacity: isRegister ? 1 : 0,
+                                  pointerEvents: isRegister ? 'auto' : 'none',
+                                  transform: isRegister ? 'translateX(0)' : 'translateX(20%)',
+                              }
+                            : undefined
+                    }
                 >
                     <div className="w-full max-w-sm space-y-5">
                         <div className="flex flex-col items-center gap-2">
@@ -272,7 +303,7 @@ export const AuthPage = () => {
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div className="space-y-1">
                                     <Label htmlFor="register-password" className="text-gray-600 text-xs uppercase tracking-wider font-medium">
                                         Senha
@@ -339,13 +370,20 @@ export const AuthPage = () => {
 
 
                 <div
-                    className="absolute top-0 w-1/2 h-full z-20 transition-transform duration-700 ease-in-out"
-                    style={{
-                        right: 0,
-                        transform: isRegister ? 'translateX(-100%)' : 'translateX(0)',
-                    }}
+                    className={cn(
+                        'z-20 shrink-0 transition-transform duration-700 ease-in-out',
+                        'relative w-full max-lg:min-h-0 max-lg:h-auto lg:absolute lg:top-0 lg:right-0 lg:w-1/2 lg:h-full lg:min-h-0',
+                    )}
+                    style={
+                        isLg
+                            ? {
+                                  right: 0,
+                                  transform: isRegister ? 'translateX(-100%)' : 'translateX(0)',
+                              }
+                            : undefined
+                    }
                 >
-                    <div className="relative w-full h-full overflow-hidden rounded-2xl">
+                    <div className="relative w-full max-lg:min-h-0 max-lg:h-auto max-lg:overflow-visible lg:h-full lg:overflow-hidden lg:rounded-2xl">
                         <div className="absolute inset-0 bg-gradient-to-br from-pink-light via-rose-400 to-pink-dark" />
 
 
@@ -358,29 +396,39 @@ export const AuthPage = () => {
 
 
                         <div
-                            className="absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out"
-                            style={{
-                                opacity: isRegister ? 0 : 1,
-                                transform: isRegister ? 'translateX(30%)' : 'translateX(0)',
-                                pointerEvents: isRegister ? 'none' : 'auto',
-                            }}
+                            className={cn(
+                                'flex items-center justify-center transition-all duration-700 ease-in-out px-4 py-8 sm:px-8',
+                                'max-lg:relative max-lg:inset-auto max-lg:min-h-0 max-lg:w-full max-lg:pb-2',
+                                'lg:absolute lg:inset-0',
+                            )}
+                            style={
+                                isLg
+                                    ? {
+                                          opacity: isRegister ? 0 : 1,
+                                          transform: isRegister ? 'translateX(30%)' : 'translateX(0)',
+                                          pointerEvents: isRegister ? 'none' : 'auto',
+                                      }
+                                    : {
+                                          display: isRegister ? 'none' : 'flex',
+                                      }
+                            }
                         >
-                            <div className="relative z-10 text-center text-white px-8 space-y-6">
+                            <div className="relative z-10 text-center text-white px-2 sm:px-8 space-y-4 sm:space-y-6 max-w-md mx-auto w-full">
                                 <div className="flex justify-center">
-                                    <div className="w-20 h-20 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
-                                        <ShoppingBag className="w-10 h-10 text-white" />
+                                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
+                                        <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                                     </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <h2 className="text-3xl font-light leading-tight">
+                                <div className="space-y-2 sm:space-y-3">
+                                    <h2 className="text-2xl sm:text-3xl font-light leading-tight">
                                         Descubra sua <br />
                                         <span className="font-semibold">bolsa perfeita</span>
                                     </h2>
-                                    <p className="text-white/75 text-sm leading-relaxed max-w-xs mx-auto">
+                                    <p className="text-white/75 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto">
                                         Explore nossa coleção exclusiva com designs únicos e materiais premium.
                                     </p>
                                 </div>
-                                <div className="flex justify-center gap-5 pt-2">
+                                <div className="flex justify-center gap-4 sm:gap-5 pt-1 sm:pt-2">
                                     <div className="flex flex-col items-center gap-1">
                                         <Sparkles className="w-4 h-4 text-white/60" />
                                         <span className="text-[10px] text-white/60">Premium</span>
@@ -408,29 +456,39 @@ export const AuthPage = () => {
 
 
                         <div
-                            className="absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out"
-                            style={{
-                                opacity: isRegister ? 1 : 0,
-                                transform: isRegister ? 'translateX(0)' : 'translateX(-30%)',
-                                pointerEvents: isRegister ? 'auto' : 'none',
-                            }}
+                            className={cn(
+                                'flex items-center justify-center transition-all duration-700 ease-in-out px-4 py-8 sm:px-8',
+                                'max-lg:relative max-lg:inset-auto max-lg:min-h-0 max-lg:w-full max-lg:pb-2',
+                                'lg:absolute lg:inset-0',
+                            )}
+                            style={
+                                isLg
+                                    ? {
+                                          opacity: isRegister ? 1 : 0,
+                                          transform: isRegister ? 'translateX(0)' : 'translateX(-30%)',
+                                          pointerEvents: isRegister ? 'auto' : 'none',
+                                      }
+                                    : {
+                                          display: isRegister ? 'flex' : 'none',
+                                      }
+                            }
                         >
-                            <div className="relative z-10 text-center text-white px-8 space-y-6">
+                            <div className="relative z-10 text-center text-white px-2 sm:px-8 space-y-4 sm:space-y-6 max-w-md mx-auto w-full">
                                 <div className="flex justify-center">
-                                    <div className="w-20 h-20 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
-                                        <Heart className="w-10 h-10 text-white" />
+                                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
+                                        <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                                     </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <h2 className="text-3xl font-light leading-tight">
+                                <div className="space-y-2 sm:space-y-3">
+                                    <h2 className="text-2xl sm:text-3xl font-light leading-tight">
                                         Já faz parte <br />
                                         <span className="font-semibold">da família?</span>
                                     </h2>
-                                    <p className="text-white/75 text-sm leading-relaxed max-w-xs mx-auto">
+                                    <p className="text-white/75 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto">
                                         Faça login para acompanhar seus pedidos e descobrir novidades exclusivas.
                                     </p>
                                 </div>
-                                <div className="flex justify-center gap-5 pt-2">
+                                <div className="flex justify-center gap-4 sm:gap-5 pt-1 sm:pt-2">
                                     <div className="flex flex-col items-center gap-1">
                                         <ShoppingBag className="w-4 h-4 text-white/60" />
                                         <span className="text-[10px] text-white/60">Pedidos</span>
