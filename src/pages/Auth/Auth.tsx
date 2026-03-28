@@ -118,7 +118,6 @@ export const AuthPage = () => {
         } finally {
             setRegisterData({ username: '', email: '', password: '', confirmPassword: '' })
         }
-        console.log('Register data:', result.data)
         setRegisterData({ username: '', email: '', password: '', confirmPassword: '' })
     }
 
