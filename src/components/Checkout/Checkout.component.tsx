@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { AddressComponent } from '@/components/Address/Address.component'
+import { FIXED_SHIPPING_AMOUNT } from '@/constants/shipping'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import type { CheckoutProps } from './Checkout.types'
@@ -8,11 +10,17 @@ const CURRENCY = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 })
 
-export const Checkout = ({ lines, shippingAmount = null }: CheckoutProps) => {
+export const Checkout = ({
+  lines,
+  shippingAmount = null,
+  onShippingCalculatedSuccess,
+}: CheckoutProps) => {
   const [shippingDialogOpen, setShippingDialogOpen] = useState(false)
+  const [calculatedShippingAmount, setCalculatedShippingAmount] = useState<number | null>(null)
   const itemsSubtotal = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0)
-  const shippingResolved = typeof shippingAmount === 'number'
-  const shippingValue = shippingResolved ? shippingAmount : 0
+  const resolvedShippingAmount = calculatedShippingAmount ?? shippingAmount
+  const shippingResolved = typeof resolvedShippingAmount === 'number'
+  const shippingValue = shippingResolved ? resolvedShippingAmount : 0
   const total = itemsSubtotal + shippingValue
 
   return (
@@ -107,6 +115,14 @@ export const Checkout = ({ lines, shippingAmount = null }: CheckoutProps) => {
           <DialogHeader>
             <DialogTitle className="text-[#2a1810]">Calcular frete</DialogTitle>
           </DialogHeader>
+          <AddressComponent
+            open={shippingDialogOpen}
+            onClose={() => setShippingDialogOpen(false)}
+            onCalculateSuccess={() => {
+              setCalculatedShippingAmount(FIXED_SHIPPING_AMOUNT)
+              onShippingCalculatedSuccess?.()
+            }}
+          />
         </DialogContent>
       </Dialog>
     </>

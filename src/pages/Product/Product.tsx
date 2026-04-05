@@ -73,6 +73,7 @@ export const ProductPage = () => {
     )
   }
 
+  const isUnavailable = product.stock <= 0
   const images = product.images
   const hasMultipleImages = images.length > 1
   const selectedImage = images[selectedImageIndex]
@@ -99,6 +100,7 @@ export const ProductPage = () => {
     const cover = product.images[0]
     addOrMergeLine({
       productId: product.id,
+      productDocumentId: product.documentId,
       title: product.title,
       imageUrl: cover?.url ?? "",
       imageAlt: cover?.altText ?? product.title,
@@ -225,14 +227,22 @@ export const ProductPage = () => {
                       {descriptionExpanded ? "Ver menos" : "Ver descrição completa"}
                     </Button>
                   )}
-                  <Button className="w-full min-h-11 rounded-xl bg-pink-light text-white hover:bg-pink-dark cursor-pointer text-base font-poppins font-medium shadow-sm" onClick={() => handleRequestProduct(isAuthenticated)}>
-                    Solicitar produto
+                  <Button 
+                    className="w-full min-h-11 rounded-xl bg-pink-light text-white hover:bg-pink-dark cursor-pointer disabled:pointer-events-none disabled:opacity-50 text-base font-poppins font-medium shadow-sm" 
+                    disabled={isUnavailable}
+                    onClick={() => handleRequestProduct(isAuthenticated)}
+                  >
+                    {isUnavailable ? "Produto indisponível no momento" : "Solicitar produto"}
                   </Button>
                 </div>
               ) : (
                 <div className="shrink-0 pt-1">
-                  <Button className="w-full min-h-11 rounded-xl bg-pink-light text-white hover:bg-pink-dark cursor-pointer text-base font-poppins font-medium shadow-sm" onClick={() => handleRequestProduct(isAuthenticated)}>
-                    Solicitar produto
+                  <Button 
+                    className="w-full min-h-11 rounded-xl bg-pink-light text-white hover:bg-pink-dark cursor-pointer disabled:pointer-events-none disabled:opacity-50 text-base font-poppins font-medium shadow-sm" 
+                    disabled={isUnavailable}
+                    onClick={() => handleRequestProduct(isAuthenticated)}
+                  >
+                    {isUnavailable ? "Produto indisponível no momento" : "Solicitar produto"}
                   </Button>
                 </div>
               )}

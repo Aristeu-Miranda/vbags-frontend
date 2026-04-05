@@ -1,0 +1,1 @@
+export const FIXED_SHIPPING_AMOUNT = 25

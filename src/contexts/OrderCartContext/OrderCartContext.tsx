@@ -34,6 +34,8 @@ const loadFromStorage = (): OrderCartLine[] => {
         typeof item === 'object' &&
         item !== null &&
         typeof (item as OrderCartLine).productId === 'number' &&
+        (typeof (item as OrderCartLine).productDocumentId === 'string' ||
+          typeof (item as OrderCartLine).productDocumentId === 'undefined') &&
         typeof (item as OrderCartLine).title === 'string' &&
         typeof (item as OrderCartLine).imageUrl === 'string' &&
         typeof (item as OrderCartLine).imageAlt === 'string' &&
@@ -75,6 +77,7 @@ export const OrderCartProvider = ({ children }: { children: ReactNode }) => {
                   imageUrl: line.imageUrl,
                   imageAlt: line.imageAlt,
                   title: line.title,
+                  productDocumentId: line.productDocumentId,
                   quantity: nextQty,
                 }
               : item,
@@ -87,6 +90,7 @@ export const OrderCartProvider = ({ children }: { children: ReactNode }) => {
           ...previous,
           {
             productId: line.productId,
+            productDocumentId: line.productDocumentId,
             title: line.title,
             imageUrl: line.imageUrl,
             imageAlt: line.imageAlt,

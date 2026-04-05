@@ -5,6 +5,7 @@ export type LoginType = {
 
 export type AuthUser = {
     id: number,
+    documentId?: string,
     name: string,
     email: string,
     phone: string,

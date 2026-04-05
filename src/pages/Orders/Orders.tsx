@@ -1,13 +1,89 @@
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import logo from '@/assets/logo.png'
 import { Checkout } from '@/components/Checkout'
+import { FIXED_SHIPPING_AMOUNT } from '@/constants/shipping'
+import { useAuth } from '@/contexts/AuthContext/AuthContext'
 import { OrderCard } from '@/components/OrderCard'
 import { HEADER_HEIGHT } from '@/constants/header'
 import { useOrderCart } from '@/contexts/OrderCartContext'
+import { useCreateOrder } from '@/services/order/order.hooks'
+import { useProducts, PRODUCTS_QUERY_KEY } from '@/services/products/products.hooks'
+import { FeedbackModal } from '@/components/FeedbackModal'
 
 export const OrdersPage = () => {
   const navigate = useNavigate()
-  const { lines, setLineQuantity, removeLine } = useOrderCart()
+  const queryClient = useQueryClient()
+  const { token, user } = useAuth()
+  const { lines, setLineQuantity, removeLine, clearCart } = useOrderCart()
+  const { mutateAsync: requestOrder, isPending: isRequestingOrder } = useCreateOrder()
+  const { data: products = [] } = useProducts()
+  const [isRequestEnabled, setIsRequestEnabled] = useState(false)
+  const [requestError, setRequestError] = useState<string | null>(null)
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false)
+
+  const itemsSubtotal = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0)
+  const orderTotal = itemsSubtotal + FIXED_SHIPPING_AMOUNT
+
+  const handleRequestOrder = async () => {
+    setRequestError(null)
+
+    if (!token || !user || !isRequestEnabled) {
+      return
+    }
+
+    if (!user.documentId) {
+      setRequestError('Nao foi possivel identificar o usuario para criar o pedido.')
+      return
+    }
+
+    const productDocumentIdByProductId = new Map(
+      products.map((product) => [product.id, product.documentId] as const),
+    )
+
+    const linesWithDocumentId = lines.map((line) => ({
+      ...line,
+      productDocumentId: line.productDocumentId ?? productDocumentIdByProductId.get(line.productId),
+    }))
+
+    const orderItems = linesWithDocumentId
+      .filter((line): line is typeof line & { productDocumentId: string } => Boolean(line.productDocumentId))
+      .map((line) => ({
+        product: {
+          connect: [line.productDocumentId],
+        },
+        quantity: line.quantity,
+        priceAtPurchase: line.unitPrice,
+      }))
+
+    if (orderItems.length !== lines.length) {
+      setRequestError('Nao foi possivel localizar os produtos para criar o pedido.')
+      return
+    }
+
+    try {
+      await requestOrder({
+        token,
+        payload: {
+          data: {
+            type: 'pending',
+            total: orderTotal,
+            items: orderItems,
+            users_permissions_user: {
+              connect: [user.documentId],
+            },
+          },
+        },
+      })
+      clearCart()
+      setIsRequestEnabled(false)
+      setSuccessDialogOpen(true)
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY })
+    } catch {
+      setRequestError('Nao foi possivel solicitar o pedido. Tente novamente.')
+    }
+  }
 
   return (
     <div className="min-h-dvh bg-gray-50 flex flex-col">
@@ -87,20 +163,36 @@ export const OrdersPage = () => {
                   className="flex min-w-0 flex-col gap-4 lg:sticky lg:col-span-5 xl:col-span-4"
                   style={{ top: HEADER_HEIGHT + 16 }}
                 >
-                  <Checkout lines={lines} shippingAmount={null} />
+                  <Checkout
+                    lines={lines}
+                    shippingAmount={null}
+                    onShippingCalculatedSuccess={() => setIsRequestEnabled(true)}
+                  />
                   <button
                     type="button"
-                    disabled
-                    className="w-full cursor-pointer rounded-xl bg-pink-light py-3.5 font-poppins text-base font-semibold text-white opacity-50 shadow-sm"
+                    disabled={!isRequestEnabled || isRequestingOrder}
+                    className="w-full cursor-pointer rounded-xl bg-pink-light py-3.5 font-poppins text-base font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={handleRequestOrder}
                   >
-                    Solicitar
+                    {isRequestingOrder ? 'Solicitando...' : 'Solicitar'}
                   </button>
+                  {requestError && <p className="font-poppins text-xs text-red-600">{requestError}</p>}
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      <FeedbackModal
+        open={successDialogOpen}
+        onOpenChange={setSuccessDialogOpen}
+        email={user?.email}
+        onContinue={() => {
+          setSuccessDialogOpen(false)
+          navigate('/')
+        }}
+      />
     </div>
   )
 }

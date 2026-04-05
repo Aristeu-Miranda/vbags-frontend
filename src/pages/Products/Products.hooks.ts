@@ -37,6 +37,7 @@ const mapProductToCardData = (product: ProductResponseItem): ProductCardData => 
 
   return {
     id: product.id,
+    documentId: product.documentId,
     name: product.name,
     title: product.name,
     description: extractDescriptionText(product.description),

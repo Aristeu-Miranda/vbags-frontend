@@ -16,6 +16,7 @@ export type ProductImage = {
 
 export type ProductResponseItem = {
   id: number
+  documentId?: string
   name: string
   price: number
   color: string

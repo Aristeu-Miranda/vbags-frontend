@@ -11,6 +11,7 @@ export type ProductImageData = {
 }
 
 export type ProductCardData = Omit<ProductCardProps, "onAction"> & {
+  documentId?: string
   name: string
   color: string
   stock: number
